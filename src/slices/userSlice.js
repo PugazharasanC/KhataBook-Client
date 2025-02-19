@@ -33,12 +33,12 @@ export const fetchUserData = createAsyncThunk(
     }
   }
 );
-
+const userDetails = localStorage.getItem("user")
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    user: null,
-    token: null,
+    user: JSON.parse(userDetails!='undefined' ? userDetails : null),
+    token: localStorage.getItem("token") || null,
     loading: false,
     error: null,
   },
@@ -46,10 +46,16 @@ const userSlice = createSlice({
     setUser: (state, action) => {
       state.user = action.payload.user;
       state.token = action.payload.token;
+      // Store in localStorage for persistence
+      localStorage.setItem("user", JSON.stringify(action.payload.user));
+      localStorage.setItem("token", action.payload.token);
     },
     logoutUser: (state) => {
       state.user = null;
       state.token = null;
+      // Remove from localStorage on logout
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
     },
   },
   extraReducers: (builder) => {

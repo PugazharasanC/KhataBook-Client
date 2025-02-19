@@ -1,28 +1,20 @@
-// src/App.jsx
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-
-import Home from "./pages/Home";
+// App.js
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // Ensure Routes and Route are used correctly
+// import GoogleLogin from "./pages/GoogleLogin";
 import Dashboard from "./pages/Dashboard";
-import { fetchUserData } from "./slices/userSlice";
+import Home from "./pages/Home";
 
-function App() {
-  const dispatch = useDispatch();
-
-  // Fetch user data when the app loads
-  useEffect(() => {
-    dispatch(fetchUserData());
-  }, [dispatch]);
-
+const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home />} />{" "}
+        {/* Correct usage of element */}
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;
