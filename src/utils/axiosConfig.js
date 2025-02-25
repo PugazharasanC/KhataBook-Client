@@ -1,12 +1,11 @@
 // src/utils/axiosConfig.js
 import axios from "axios"; // Import your Redux store
-import { setToken } from "../store/authSlice"; // Import your authSlice to set or get token
 import { logout } from "../store/authSlice"; // Import logout action (for handling expired tokens)
 import store from "../store";
 
 // Create Axios instance
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api", // Base URL for your API
+  baseURL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api", // Base URL for your API
   headers: {
     "Content-Type": "application/json",
   },
