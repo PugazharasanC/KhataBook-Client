@@ -1,8 +1,8 @@
-// src/components/TransactionForm.jsx
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addTransaction } from "../store/transactionSlice"; // Add your addTransaction action
-import axiosInstance from "../utils/axiosConfig"; // Axios instance to make the API call
+import { addTransaction } from "../store/transactionSlice"; // Action for adding a transaction
+import { toast } from "react-toastify"; // For toasts
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 
 const TransactionForm = () => {
   const dispatch = useDispatch();
@@ -11,7 +11,7 @@ const TransactionForm = () => {
   const [type, setType] = useState("income");
   const [category, setCategory] = useState("salary");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
 
   const categories = {
     income: ["salary", "freelance", "gift", "investment"],
@@ -23,26 +23,42 @@ const TransactionForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      if (amount && type && category && date) {
-        const transactionData = {
-          amount,
-          type,
-          category,
-          description,
-          date,
-        };
+    // Amount validation (cannot be negative)
+    if (amount < 0) {
+      toast.error("Amount cannot be negative");
+      return;
+    }
 
-        dispatch(addTransaction(transactionData));
-        // Optionally reset the form
-        setAmount("");
-        setDescription("");
-        setDate("");
-      } else {
-        console.log(amount, type, category, description, date);
-      }
+    // Check if all fields are filled
+    if (!amount || !type || !category || !date) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    // Ensure the date is not in the future
+    if (new Date(date) > new Date()) {
+      toast.error("Date cannot be in the future");
+      return;
+    }
+
+    try {
+      const transactionData = {
+        amount,
+        type,
+        category,
+        description,
+        date,
+      };
+
+      // Dispatch action to add transaction (success/failure handled in slice)
+      dispatch(addTransaction(transactionData));
+
+      // Reset form fields after successful submission
+      setAmount("");
+      setDescription("");
+      setDate(new Date().toISOString().split("T")[0]);
     } catch (error) {
-      console.error("Error adding transaction:", error);
+      console.error("Error submitting transaction:", error);
     }
   };
 
@@ -60,6 +76,7 @@ const TransactionForm = () => {
           onChange={(e) => setAmount(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
           required
+          min="0"
         />
       </div>
 
@@ -72,9 +89,9 @@ const TransactionForm = () => {
           id="type"
           value={type}
           onChange={(e) => {
-            const type = e.target.value
-            setType(type)
-            setCategory(categories[type][0]);
+            const selectedType = e.target.value;
+            setType(selectedType);
+            setCategory(categories[selectedType][0]);
           }}
           className="w-full p-2 border border-gray-300 rounded"
           required
@@ -132,6 +149,7 @@ const TransactionForm = () => {
           onChange={(e) => setDate(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
           required
+          max={new Date().toISOString().split("T")[0]} // Restrict future dates
         />
       </div>
 

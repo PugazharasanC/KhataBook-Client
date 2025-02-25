@@ -1,13 +1,12 @@
-// src/store/transactionSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../utils/axiosConfig";
+import { toast } from "react-toastify"; // Import toast
 
 // Async thunk for fetching transactions
 export const fetchTransactions = createAsyncThunk(
   "transactions/fetchTransactions",
   async () => {
     try {
-
       const response = await axiosInstance.get("/transactions");
       return response.data;
     } catch (err) {
@@ -19,7 +18,7 @@ export const fetchTransactions = createAsyncThunk(
 // Async thunk for adding a transaction
 export const addTransaction = createAsyncThunk(
   "transactions/addTransaction",
-  async (transactionData) => {
+  async (transactionData, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
         "/transactions",
@@ -28,8 +27,7 @@ export const addTransaction = createAsyncThunk(
       console.log(response);
       return response.data; // response contains the transaction and balance
     } catch (err) {
-      // console.log(err);
-      throw new Error(err.response.data.message);
+      return rejectWithValue(err.response.data.message); // Return error message to be handled
     }
   }
 );
@@ -39,7 +37,6 @@ export const fetchBalance = createAsyncThunk(
   "transactions/fetchBalance",
   async () => {
     try {
-
       const response = await axiosInstance.get("/balance");
       return response.data;
     } catch (err) {
@@ -86,11 +83,16 @@ const transactionSlice = createSlice({
         // Append the new transaction and update the balance
         state.transactions.unshift(action.payload.transaction);
         state.balance = action.payload.balance;
+
+        // Show success toast when transaction is added
+        toast.success("Transaction added successfully!");
       })
       .addCase(addTransaction.rejected, (state, action) => {
         state.status = "failed";
-        console.log(action);
         state.error = action.error.message;
+
+        // Show error toast if there's a failure
+        toast.error(`Failed to add transaction: ${action.error.message}`);
       });
 
     // Fetch balance

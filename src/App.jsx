@@ -1,10 +1,10 @@
 // src/App.jsx
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { useSelector } from "react-redux";
-import Login from "./components/Login.jsx";
-import Register from "./components/Register.jsx";
-import Dashboard from "./components/Dashboard.jsx";
-import Navbar from "./components/Navbar.jsx";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import Dashboard from "./components/Dashboard";
+import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Profile from "./components/Profile.jsx";
 import Home from "./components/Home.jsx";
@@ -28,7 +28,7 @@ function App() {
         <Route
           path="/profile"
           element={<ProtectedRoute component={<Profile />} />}
-        />
+          />
       </Routes>
     </Router>
   );
