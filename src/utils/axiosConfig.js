@@ -5,7 +5,7 @@ import store from "../store";
 
 // Create Axios instance
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api", // Base URL for your API
+  baseURL: `${import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"}/api`, // Base URL for your API
   headers: {
     "Content-Type": "application/json",
   },
