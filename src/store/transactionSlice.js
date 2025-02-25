@@ -6,8 +6,13 @@ import axiosInstance from "../utils/axiosConfig";
 export const fetchTransactions = createAsyncThunk(
   "transactions/fetchTransactions",
   async () => {
-    const response = await axiosInstance.get("/transactions");
-    return response.data;
+    try {
+
+      const response = await axiosInstance.get("/transactions");
+      return response.data;
+    } catch (err) {
+      throw new Error(err.response.data.message);
+    }
   }
 );
 
@@ -15,8 +20,17 @@ export const fetchTransactions = createAsyncThunk(
 export const addTransaction = createAsyncThunk(
   "transactions/addTransaction",
   async (transactionData) => {
-    const response = await axiosInstance.post("/transactions", transactionData);
-    return response.data; // response contains the transaction and balance
+    try {
+      const response = await axiosInstance.post(
+        "/transactions",
+        transactionData
+      );
+      console.log(response);
+      return response.data; // response contains the transaction and balance
+    } catch (err) {
+      // console.log(err);
+      throw new Error(err.response.data.message);
+    }
   }
 );
 
@@ -24,8 +38,13 @@ export const addTransaction = createAsyncThunk(
 export const fetchBalance = createAsyncThunk(
   "transactions/fetchBalance",
   async () => {
-    const response = await axiosInstance.get("/balance");
-    return response.data;
+    try {
+
+      const response = await axiosInstance.get("/balance");
+      return response.data;
+    } catch (err) {
+      throw new Error(err.response.data.message);
+    }
   }
 );
 
@@ -70,6 +89,7 @@ const transactionSlice = createSlice({
       })
       .addCase(addTransaction.rejected, (state, action) => {
         state.status = "failed";
+        console.log(action);
         state.error = action.error.message;
       });
 

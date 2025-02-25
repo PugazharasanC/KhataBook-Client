@@ -71,7 +71,11 @@ const TransactionForm = () => {
         <select
           id="type"
           value={type}
-          onChange={(e) => setType(e.target.value)}
+          onChange={(e) => {
+            const type = e.target.value
+            setType(type)
+            setCategory(categories[type][0]);
+          }}
           className="w-full p-2 border border-gray-300 rounded"
           required
         >
