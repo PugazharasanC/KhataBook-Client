@@ -1,12 +1,10 @@
-// src/components/Home.jsx
 import React from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const Home = () => {
-  const userToken = useSelector((state) => state.auth.token); // Access token from Redux store
+  const userToken = useSelector((state) => state.auth.token);
 
-  // If a user is logged in (token exists), redirect them to the dashboard
   if (userToken) {
     return <Navigate to="/dashboard" />;
   }

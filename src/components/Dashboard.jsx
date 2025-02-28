@@ -4,35 +4,24 @@ import { useDispatch, useSelector } from "react-redux";
 import TransactionForm from "../components/TransactionForm";
 import { fetchBalance, fetchTransactions } from "../store/transactionSlice"; // Fetch transactions
 
-const categories = {
-  income: ["salary", "freelance", "gift", "investment"],
-  expense: ["groceries", "entertainment", "utilities", "rent"],
-  loan: ["personal loan", "mortgage", "education loan", "car loan"],
-  loan_repayment: ["personal loan", "mortgage", "education loan", "car loan"],
-};
-
 const Dashboard = () => {
   const dispatch = useDispatch();
-
-  // Getting the balance and transactions data from Redux store
+  const { categories } = useSelector((state) => state.category);
   const { balance, transactions, status, error } = useSelector(
     (state) => state.transactions
   );
 
-  // State for filtering
   const [filteredTransactions, setFilteredTransactions] =
     useState(transactions);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
 
-  // Fetch balance and transactions data on component mount
   useEffect(() => {
-    dispatch(fetchBalance()); // Dispatch to fetch balance
-    dispatch(fetchTransactions()); // Dispatch to fetch transactions
+    dispatch(fetchBalance());
+    dispatch(fetchTransactions());
   }, [dispatch]);
 
   useEffect(() => {
-    // Filter transactions based on selected category and type
     let filtered = transactions;
 
     if (typeFilter) {
@@ -46,7 +35,6 @@ const Dashboard = () => {
     setFilteredTransactions(filtered);
   }, [categoryFilter, typeFilter, transactions]);
 
-  // Handle loading and error states
   if (status === "loading") {
     return <div>Loading...</div>;
   }

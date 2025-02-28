@@ -1,11 +1,16 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { addTransaction } from "../store/transactionSlice"; // Action for adding a transaction
 import { toast } from "react-toastify"; // For toasts
 import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
+import { fetchCategories } from "../store/categorySlice";
+import CategoryInput from "./CategoryInput";
 
 const TransactionForm = () => {
   const dispatch = useDispatch();
+  const { categories, isLoading, error } = useSelector(
+    (state) => state.category
+  );
 
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("income");
@@ -13,24 +18,28 @@ const TransactionForm = () => {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
 
-  const categories = {
-    income: ["salary", "freelance", "gift", "investment"],
-    expense: ["groceries", "entertainment", "utilities", "rent"],
-    loan: ["personal loan", "mortgage", "education loan", "car loan"],
-    loan_repayment: ["personal loan", "mortgage", "education loan", "car loan"],
-  };
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Amount validation (cannot be negative)
-    if (amount < 0) {
+    if (Number(amount) < 0) {
       toast.error("Amount cannot be negative");
       return;
     }
 
     // Check if all fields are filled
     if (!amount || !type || !category || !date) {
+      console.table({
+        amount,
+        type,
+        category,
+        description,
+        date,
+      });
       toast.error("Please fill in all fields");
       return;
     }
@@ -43,24 +52,39 @@ const TransactionForm = () => {
 
     try {
       const transactionData = {
-        amount,
+        amount: Number(amount), // Ensure amount is a number
         type,
-        category,
+        category: category.toLowerCase(),
         description,
         date,
       };
 
       // Dispatch action to add transaction (success/failure handled in slice)
-      dispatch(addTransaction(transactionData));
+      await dispatch(addTransaction(transactionData));
 
       // Reset form fields after successful submission
       setAmount("");
       setDescription("");
       setDate(new Date().toISOString().split("T")[0]);
+      setCategory("salary"); // Reset the category after submission
+      setType("income"); // Reset the type after submission
+
+      // Show success toast
+      toast.success("Transaction added successfully!");
     } catch (error) {
       console.error("Error submitting transaction:", error);
+      toast.error("Error submitting transaction");
     }
   };
+
+  // Loading and error handling
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error occurred: {error.message}</div>;
+  }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-wrap gap-4 p-4">
@@ -89,10 +113,9 @@ const TransactionForm = () => {
           id="type"
           value={type}
           onChange={(e) => {
-            const selectedType = e.target.value;
-            setType(selectedType);
-            setCategory(categories[selectedType][0]);
-          }}
+            setType(e.target.value);
+            setCategory("");
+          }} // Set type directly
           className="w-full p-2 border border-gray-300 rounded"
           required
         >
@@ -104,24 +127,11 @@ const TransactionForm = () => {
       </div>
 
       {/* Category */}
-      <div className="flex-1">
-        <label htmlFor="category" className="block">
-          Category
-        </label>
-        <select
-          id="category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded"
-          required
-        >
-          {categories[type].map((cat) => (
-            <option key={cat} value={cat}>
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </option>
-          ))}
-        </select>
-      </div>
+      <CategoryInput
+        categories={categories[type]} // Directly passing categories
+        category={category} // Directly passing category
+        setCategory={setCategory}
+      />
 
       {/* Description */}
       <div className="flex-1">
